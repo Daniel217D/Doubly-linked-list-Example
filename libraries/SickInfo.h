@@ -10,6 +10,20 @@ public:
     unsigned short int month;
     unsigned short int year;
 
+    bool compare(Date &date) {
+        bool result = false;
+
+        if(date.year < year) {
+            result = true;
+        } else if(date.month < month) {
+            result = true;
+        } else if(date.day < day) {
+            result = true;
+        }
+
+        return result;
+    }
+
     friend std::ostream &operator<<(std::ostream &stream, const Date &date) {
         stream << date.day << "/" << date.month << "/" << date.year;
         return stream;
@@ -37,7 +51,7 @@ public:
     unsigned short int incapacity_days;
 
     friend std::ostream &operator<<(std::ostream &stream, const SickInfo &info) {
-        stream << info.full_name << info.job << info.number << info.date << info.incapacity_days;
+        stream << info.full_name << " " << info.job << " " << info.number << " " << info.date << " " << info.incapacity_days << "\n";
         return stream;
     }
 };
