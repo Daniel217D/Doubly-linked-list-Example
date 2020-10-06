@@ -2,48 +2,143 @@
 
 #include <iostream>
 
+using std::cout;
 using std::string;
 
+template<class Type>
 class Node {
 private:
-    int value;
+    Type info;
 
-    Node *next;
+    Node<Type> *next;
 
-    Node *prev;
+    Node<Type> *prev;
 
-    friend class DList;
+    template<typename> friend class DList;
 
 public:
-    explicit Node(int _value, Node *_prev, Node *_next);
+    explicit Node(Type _info, Node<Type> *_prev, Node<Type> *_next) : info(_info), prev(_prev), next(_next) {
+    }
 
-    ~Node();
+    ~Node() {
+        delete next;
+    }
 
-    Node *get_next();
+    Node<Type> *get_next() {
+        return next;
+    };
 
-    Node *get_prev();
+    Node<Type> *get_prev() {
+        return prev;
+    }
 
-    int get_value();
+    Type get_info() {
+        return info;
+    }
 };
 
+template<class Type>
 class DList {
 private:
-    Node *node = nullptr;
+    Node<Type> *node = nullptr;
 
 public:
-    ~DList();
+    ~DList() {
+        delete node;
+    }
 
-    Node *get_node();
+    Node<Type> *get_node() {
+        return node;
+    }
 
-    bool is_empty();
+    bool is_empty() {
+        return node == nullptr;
+    }
 
-    void add_to_head(int value);
+    void add_to_head(Type info) {
+        node = new Node<Type>(info, nullptr, node);
 
-    void add_to_tail(int value);
+        if (node->next) {
+            node->next->prev = node;
+        }
+    }
 
-    void add_after(Node *&after, int value);
+    void add_to_tail(Type info) {
+        if (!is_empty()) {
+            Node<Type> *current = node;
 
-    void remove(Node *&del_el);
+            while (current->next != nullptr) {
+                current = current->next;
+            }
 
-    void print();
+            current->next = new Node<Type>(info, current, nullptr);
+            current->next->prev = current;
+        } else {
+            add_to_head(info);
+        }
+    }
+
+    void add_after(Node<Type> *&after, Type info) {
+        if (after == nullptr) {
+            return;
+        }
+
+        if (!is_empty()) {
+            after->next = new Node<Type>(info, after, after->next);
+
+            if (after->next->next) {
+                after->next->next->prev = after->next;
+            }
+        }
+    }
+
+    void remove(Node<Type> *&del_el) {
+        if (del_el == nullptr) {
+            return;
+        }
+
+        if (node == del_el) {
+            Node<Type> *temp = del_el->next;
+
+            if (temp == nullptr) {
+                delete node;
+                node = nullptr;
+            } else {
+                del_el->next = nullptr;
+                delete del_el;
+                node = temp;
+                node->prev = nullptr;
+            }
+        } else {
+            Node<Type> *current = node;
+
+            while (current && current->next != del_el) {
+                current = current->next;
+            }
+
+            if (current != nullptr) {
+                Node<Type> *temp = del_el->next;
+
+                del_el->next = nullptr;
+                del_el->prev = nullptr;
+                delete del_el;
+
+                current->next = temp;
+                if (temp) {
+                    temp->prev = current;
+                }
+            }
+        }
+    }
+
+    void print() {
+        Node<Type> *current = node;
+
+        while (current != nullptr) {
+            cout << current->info << " ";
+            current = current->next;
+        }
+
+        cout << "\n";
+    }
 };
