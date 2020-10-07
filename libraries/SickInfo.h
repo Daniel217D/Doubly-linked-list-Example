@@ -11,17 +11,9 @@ public:
     unsigned short int year;
 
     bool compare(Date &date) {
-        bool result = false;
-
-        if(date.year < year) {
-            result = true;
-        } else if(date.month < month) {
-            result = true;
-        } else if(date.day < day) {
-            result = true;
-        }
-
-        return result;
+        return (date.year <= year) ||
+                (date.year == year && date.month < month) ||
+                (date.year == year && date.month == month && date.day < day);
     }
 
     friend std::ostream &operator<<(std::ostream &stream, const Date &date) {
