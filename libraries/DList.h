@@ -97,11 +97,11 @@ public:
             return;
         }
 
-        if (node == del_el) {
+        if (del_el->prev == nullptr) {
             Node<Type> *temp = del_el->next;
 
             if (temp == nullptr) {
-                delete node;
+                delete del_el;
                 node = nullptr;
             } else {
                 del_el->next = nullptr;
@@ -110,23 +110,16 @@ public:
                 node->prev = nullptr;
             }
         } else {
-            Node<Type> *current = node;
+            Node<Type> *next = del_el->next;
+            Node<Type> *prev = del_el->prev;
 
-            while (current && current->next != del_el) {
-                current = current->next;
-            }
+            del_el->next = nullptr;
+            del_el->prev = nullptr;
+            delete del_el;
 
-            if (current != nullptr) {
-                Node<Type> *temp = del_el->next;
-
-                del_el->next = nullptr;
-                del_el->prev = nullptr;
-                delete del_el;
-
-                current->next = temp;
-                if (temp) {
-                    temp->prev = current;
-                }
+            prev->next = next;
+            if (next) {
+                next->prev = prev;
             }
         }
     }
