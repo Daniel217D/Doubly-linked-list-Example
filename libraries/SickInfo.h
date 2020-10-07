@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-using cin;
-using string;
-using ostream;
+using std::cin;
+using std::string;
+using std::ostream;
 
 class Date {
 public:
