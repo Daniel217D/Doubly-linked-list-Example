@@ -12,17 +12,20 @@ using std::ifstream;
 using std::ofstream;
 
 class Date {
-public:
+private:
     unsigned short int day;
     unsigned short int month;
     unsigned short int year;
 
     bool compare(Date &date) {
         return (date.year < year) ||
-                (date.year == year && date.month < month) ||
-                (date.year == year && date.month == month && date.day < day);
+               (date.year == year && date.month < month) ||
+               (date.year == year && date.month == month && date.day < day);
     }
 
+    friend class SickInfo;
+
+public:
     bool console_set() {
         cin >> day >> month >> year;
     }
@@ -34,11 +37,14 @@ public:
 };
 
 class FullName {
-public:
+private:
     string name;
     string surname;
     string father_name;
 
+    friend class SickInfo;
+
+public:
     friend ostream &operator<<(ostream &stream, const FullName &name) {
         stream << name.surname << " " << name.name << " " << name.father_name;
         return stream;
@@ -46,47 +52,48 @@ public:
 };
 
 class SickInfo {
-public:
+private:
     FullName full_name;
     string job;
     string number;
     Date date;
     unsigned short int incapacity_days;
+public:
+    SickInfo(ifstream &fin) {
+        fin >> full_name.surname;
+        fin >> full_name.name;
+        fin >> full_name.father_name;
+        fin >> job;
+        fin >> number;
+        fin >> date.day;
+        fin >> date.month;
+        fin >> date.year;
+        fin >> incapacity_days;
+    }
+
+    bool compare(SickInfo &info) {
+        return date.compare(info.date);
+    }
+
+    bool compare(Date &_date) {
+        return date.compare(_date);
+    }
 
     friend ostream &operator<<(ostream &stream, const SickInfo &info) {
-        stream << info.full_name << " " << info.job << " " << info.number << " " << info.date << " " << info.incapacity_days << "\n";
+        stream << info.full_name << " " << info.job << " " << info.number << " " << info.date << " "
+               << info.incapacity_days << "\n";
         return stream;
     }
 };
 
-DList<SickInfo> *read_file_sick_list (const string& file_name) {
+DList<SickInfo> *read_file_sick_list(const string &file_name) {
     auto list = new DList<SickInfo>;
     ifstream fin(file_name);
 
-    if(fin.is_open()) {
-        while(!fin.eof()) {
-            SickInfo temp;
-            fin >> temp.full_name.surname;
-            fin >> temp.full_name.name;
-            fin >> temp.full_name.father_name;
-            fin >> temp.job;
-            fin >> temp.number;
-            fin >> temp.date.day;
-            fin >> temp.date.month;
-            fin >> temp.date.year;
-            fin >> temp.incapacity_days;
-
-
-            if(list->is_empty() || !list->get_node()->get_info().date.compare(temp.date)) {
-                list->add_to_head(temp);
-            } else {
-                auto current = list->get_node();
-                while (current->get_next() != nullptr && current->get_next()->get_info().date.compare(temp.date)) {
-                    current = current->get_next();
-                }
-                list->add_after(current, temp);
-            }
-
+    if (fin.is_open()) {
+        while (!fin.eof()) {
+            SickInfo temp(fin);
+            list->add_to_tail(temp);
         }
 
         fin.close();
@@ -97,20 +104,20 @@ DList<SickInfo> *read_file_sick_list (const string& file_name) {
 
 void clean_sick_list(DList<SickInfo> *list, Date date) {
     auto current = list->get_node();
-    while (current && current->get_info().date.compare(date)) {
+    while (current && current->get_info().compare(date)) {
         list->remove(current);
         current = list->get_node();
     }
 }
 
-bool print_file_sick_list(const string& file_name, DList<SickInfo> *list) {
+bool print_file_sick_list(const string &file_name, DList<SickInfo> *list) {
     ofstream fout(file_name);
     bool success = false;
 
-    if(fout.is_open()) {
+    if (fout.is_open()) {
         auto current = list->get_node();
 
-        while(current) {
+        while (current) {
             fout << current->get_info();
             current = current->get_next();
         }
