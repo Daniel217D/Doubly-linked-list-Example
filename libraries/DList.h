@@ -71,7 +71,7 @@ public:
     void add_to_tail(Type info) {
         if (!is_empty()) {
             l_node = new Node<Type>(info, l_node, nullptr);
-            l_node->prev = l_node;
+            l_node->prev->next = l_node;
         } else {
             add_to_head(info);
         }
