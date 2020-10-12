@@ -41,6 +41,7 @@ template<class Type>
 class DList {
 private:
     Node<Type> *node = nullptr;
+    Node<Type> *l_node = nullptr;
 
 public:
     ~DList() {
@@ -61,34 +62,30 @@ public:
         if (node->next) {
             node->next->prev = node;
         }
+
+        if (l_node == nullptr) {
+            l_node = node;
+        }
     }
 
     void add_to_tail(Type info) {
         if (!is_empty()) {
-            Node<Type> *current = node;
-
-            while (current->next != nullptr) {
-                current = current->next;
-            }
-
-            current->next = new Node<Type>(info, current, nullptr);
-            current->next->prev = current;
+            l_node = new Node<Type>(info, l_node, nullptr);
+            l_node->prev = l_node;
         } else {
             add_to_head(info);
         }
     }
 
     void add_after(Node<Type> *&after, Type info) {
-        if (after == nullptr) {
+        if (after == nullptr || is_empty()) {
             return;
         }
 
-        if (!is_empty()) {
-            after->next = new Node<Type>(info, after, after->next);
+        after->next = new Node<Type>(info, after, after->next);
 
-            if (after->next->next) {
-                after->next->next->prev = after->next;
-            }
+        if (after->next->next) {
+            after->next->next->prev = after->next;
         }
     }
 
@@ -109,6 +106,12 @@ public:
                 node = temp;
                 node->prev = nullptr;
             }
+        } else if (del_el->next == nullptr) {
+            Node<Type> *temp = del_el->prev;
+            del_el->prev = nullptr;
+            delete del_el;
+            l_node = temp;
+            l_node->prev = nullptr;
         } else {
             Node<Type> *next = del_el->next;
             Node<Type> *prev = del_el->prev;
